@@ -140,22 +140,12 @@ echo "Please specify the username for this site?"
 read USERNAME
  adduser --home $WEB_DIR/$USERNAME $USERNAME
 
- mkdir -p /var/www/$USERNAME/public_html
+mkdir -p /var/www/$USERNAME/public_html
 
 # Now we need to copy the virtual host template
 CONFIG=$NGINX_ALL_VHOSTS/$DOMAIN.conf
 
-# Let's ask project for seperated ngnx config files...
-
-#PROJECT_TYPE=""
-
-#while [[ ! ($PROJECT_TYPE =~ ^[1-5]+$) ]]; do
-
-#OPTIONS="Magento Prestashop Wordpress Laravel Other"
-#read PROJECT_TYPE
-
-#done
- clear
+clear
 
 OPTIONS="Magento Prestashop Wordpress Laravel Other"
 
@@ -203,8 +193,7 @@ select PROJECT_TYPE in $OPTIONS; do
         install_sources other other $WEB_DIR/$USERNAME/public_html
 
          cp -f $CURRENT_DIR/virtual-host-templates/virtual_host.template $CONFIG
-         cp -f $CURRENT_DIR/index.html.template $WEB_DIR/$USERNAME/public_html/index.html
-         $SED -i "s/SITE/$DOMAIN/g" $WEB_DIR/$USERNAME/public_html/index.html
+         $SED -i "s/SITE/$DOMAIN/g" $WEB_DIR/$USERNAME/public_html/index.php
         break;
     else
         echo "WTF?"
