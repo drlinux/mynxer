@@ -1,5 +1,15 @@
 #!/bin/bash
-sudo clear
+
+echo "Am I root?  "
+if ( [[ "$(whoami &2>/dev/null)" != 'root' ]] && [[ "$(id -un &2>/dev/null)" != 'root' ]]); then
+    echo "  NO!
+
+    Error: You must be root or sudoer to run this script."
+    exit 1
+fi
+echo "  OK";
+
+clear
 
 
 CURRENT_DIR=`dirname $0`
@@ -55,26 +65,26 @@ function install_sources ()
 
     if [[ "$1" == 'git' ]]; then
 
-        sudo git clone $2 $3/git/
+         git clone $2 $3/git/
 
-        sudo cp -rf $3/git/* $3/
+         cp -rf $3/git/* $3/
 
-        sudo rm -rf $3/git/
+         rm -rf $3/git/
 
         echo "done"
 
     elif [[ "$1" = 'svn' ]]; then
 
-        sudo svn co $2 $3/svn/
+         svn co $2 $3/svn/
 
-        sudo cp -rf $3/svn/* $3/
+         cp -rf $3/svn/* $3/
 
-        sudo rm -rf $3/git/
+         rm -rf $3/git/
 
         echo "done"
     else
 
-        sudo cp -f $CURRENT_DIR/index-page-templates/index.html.template $3/index.php
+         cp -f $CURRENT_DIR/index-page-templates/index.html.template $3/index.php
 
 
     fi
@@ -84,14 +94,6 @@ function install_sources ()
 
 }
 
-echo "Am I root?  "
-if ( [[ "$(whoami &2>/dev/null)" != 'root' ]] && [[ "$(id -un &2>/dev/null)" != 'root' ]]); then
-    echo "  NO!
-
-    Error: You must be root to run this script."
-    exit 1
-fi
-echo "  OK";
 
 # Check the distribution
 echo "Checking distribution... "
@@ -115,7 +117,7 @@ NGINX_ALL_VHOSTS='/etc/nginx/sites-available'
 NGINX_ENABLED_VHOSTS='/etc/nginx/sites-enabled'
 WEB_DIR='/var/www'
 SED=`which sed`
-NGINX=`sudo which nginx`
+NGINX=` which nginx`
 
 if [ -z $1 ]; then
     echo "No domain name given"
@@ -136,9 +138,9 @@ fi
 # Create a new user!
 echo "Please specify the username for this site?"
 read USERNAME
-sudo adduser --home $WEB_DIR/$USERNAME $USERNAME
+ adduser --home $WEB_DIR/$USERNAME $USERNAME
 
-sudo mkdir -p /var/www/$USERNAME/public_html
+ mkdir -p /var/www/$USERNAME/public_html
 
 # Now we need to copy the virtual host template
 CONFIG=$NGINX_ALL_VHOSTS/$DOMAIN.conf
@@ -153,7 +155,7 @@ CONFIG=$NGINX_ALL_VHOSTS/$DOMAIN.conf
 #read PROJECT_TYPE
 
 #done
-sudo clear
+ clear
 
 OPTIONS="Magento Prestashop Wordpress Laravel Other"
 
@@ -164,7 +166,7 @@ select PROJECT_TYPE in $OPTIONS; do
     if [[ "$PROJECT_TYPE" = 'Magento' ]]; then
 
 
-    sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_magento.template $CONFIG
+     cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_magento.template $CONFIG
 
         # ask_clone_question Magento git http://git-address/repo /var/www/username/public_html/
 
@@ -174,7 +176,7 @@ select PROJECT_TYPE in $OPTIONS; do
     elif [[ "$PROJECT_TYPE" = 'Prestashop' ]]; then
 
 
-        sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_presta.template $CONFIG
+         cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_presta.template $CONFIG
 
 
         ask_clone_question Prestashop git https://github.com/PrestaShop/PrestaShop.git $WEB_DIR/$USERNAME/public_html
@@ -182,14 +184,14 @@ select PROJECT_TYPE in $OPTIONS; do
         break;
     elif [[ "$PROJECT_TYPE" = 'WordPress' ]]; then
 
-        sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_wordpress.template $CONFIG
+         cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_wordpress.template $CONFIG
 
         ask_clone_question Wordpress git https://github.com/WordPress/WordPress.git $WEB_DIR/$USERNAME/public_html
 
         break;
     elif [[ "$PROJECT_TYPE" = 'Laravel' ]]; then
 
-        sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_laravel.template $CONFIG
+         cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_laravel.template $CONFIG
 
         ask_clone_question Laravel git https://github.com/laravel/laravel.git $WEB_DIR/$USERNAME/public_html
         touch_user
@@ -200,9 +202,9 @@ select PROJECT_TYPE in $OPTIONS; do
 
         install_sources other other $WEB_DIR/$USERNAME/public_html
 
-        sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host.template $CONFIG
-        sudo cp -f $CURRENT_DIR/index.html.template $WEB_DIR/$USERNAME/public_html/index.html
-        sudo $SED -i "s/SITE/$DOMAIN/g" $WEB_DIR/$USERNAME/public_html/index.html
+         cp -f $CURRENT_DIR/virtual-host-templates/virtual_host.template $CONFIG
+         cp -f $CURRENT_DIR/index.html.template $WEB_DIR/$USERNAME/public_html/index.html
+         $SED -i "s/SITE/$DOMAIN/g" $WEB_DIR/$USERNAME/public_html/index.html
         break;
     else
         echo "WTF?"
@@ -211,35 +213,35 @@ select PROJECT_TYPE in $OPTIONS; do
 done
 
 
-sudo $SED -i "s/DOMAIN/$DOMAIN/g" $CONFIG
-sudo $SED -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" $CONFIG
+ $SED -i "s/DOMAIN/$DOMAIN/g" $CONFIG
+ $SED -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" $CONFIG
 
-sudo adduser $USERNAME www-data
-sudo chmod g+rxs $WEB_DIR/$USERNAME
-sudo chmod 600 $CONFIG
+ adduser $USERNAME www-data
+ chmod g+rxs $WEB_DIR/$USERNAME
+ chmod 600 $CONFIG
 
-sudo $NGINX -t
+ $NGINX -t
 if [ $? -eq 0 ];then
 
     # Delete possible old/previous config file
-    sudo rm -f $NGINX_ENABLED_VHOSTS/$DOMAIN.conf
+     rm -f $NGINX_ENABLED_VHOSTS/$DOMAIN.conf
 
     # Create symlink
-    sudo ln -s $CONFIG $NGINX_ENABLED_VHOSTS/$DOMAIN.conf
+     ln -s $CONFIG $NGINX_ENABLED_VHOSTS/$DOMAIN.conf
 else
     echo "Could not create new vhost as there appears to be a problem with the newly created nginx config file: $CONFIG";
     exit 1;
 fi
 
-sudo /etc/init.d/nginx reload
+ /etc/init.d/nginx reload
 
 
 
 
-sudo chown -R $USERNAME:$USERNAME $WEB_DIR/$USERNAME/public_html
-sudo chmod 770 -R $WEB_DIR/$USERNAME/
-sudo chown -R ftp. $WEB_DIR/$USERNAME/
-sudo usermod -G ftp $USERNAME
+ chown -R $USERNAME:$USERNAME $WEB_DIR/$USERNAME/public_html
+ chmod 770 -R $WEB_DIR/$USERNAME/
+ chown -R ftp. $WEB_DIR/$USERNAME/
+ usermod -G ftp $USERNAME
 echo -e "\nSite Created for $DOMAIN"
 echo "--------------------------"
 echo "Host: "`hostname`
