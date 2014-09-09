@@ -219,7 +219,7 @@ fi
 
 
 
- chown -R $USERNAME:$USERNAME "$WEB_DIR/$USERNAME/public_html"
+ chown -R "$USERNAME:$USERNAME" "$WEB_DIR/$USERNAME/public_html"
  chmod 770 -R "$WEB_DIR/$USERNAME/"
  chown -R ftp. "$WEB_DIR/$USERNAME/"
  usermod -G ftp "$USERNAME"
@@ -230,4 +230,3 @@ echo "URL:" "$DOMAIN"
 echo "User:" "$USERNAME"
 echo "--------------------------"
 exit 0;
-
