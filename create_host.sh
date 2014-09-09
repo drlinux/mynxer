@@ -1,18 +1,11 @@
 #!/bin/bash
 
-echo "Am I root?  "
 if ( [[ "$(whoami &2>/dev/null)" != 'root' ]] && [[ "$(id -un &2>/dev/null)" != 'root' ]]); then
-    echo "  NO!
-
-    Error: You must be root or sudoer to run this script."
-    exit 1
+    echo "Error: You must be root or sudoer to run this script."
+    exit 1;
 fi
-echo "  OK";
-
 clear
-
-
-CURRENT_DIR=`dirname $0`
+CURRENT_DIR="dirname $0"
 
 # ask_clone_question Magento git http://git-address/repo /var/www/username/public_html/
 function ask_clone_question()
@@ -116,8 +109,8 @@ fi
 NGINX_ALL_VHOSTS='/etc/nginx/sites-available'
 NGINX_ENABLED_VHOSTS='/etc/nginx/sites-enabled'
 WEB_DIR='/var/www'
-SED=`which sed`
-NGINX=` which nginx`
+SED="which sed"
+NGINX=" which nginx"
 
 if [ -z $1 ]; then
     echo "No domain name given"
@@ -128,7 +121,7 @@ DOMAIN=$1
 # check the domain is valid!
 PATTERN="^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$";
 if [[ "$DOMAIN" =~ $PATTERN ]]; then
-    DOMAIN=`echo $DOMAIN | tr '[A-Z]' '[a-z]'`
+    DOMAIN="echo $DOMAIN | tr '[A-Z]' '[a-z]'"
     echo "Creating hosting for:" $DOMAIN
 else
     echo "invalid domain name"
@@ -233,7 +226,7 @@ fi
  usermod -G ftp $USERNAME
 echo -e "\nSite Created for $DOMAIN"
 echo "--------------------------"
-echo "Host: "`hostname`
+echo "Host: $HOSTNAME"
 echo "URL: $DOMAIN"
 echo "User: $USERNAME"
 echo "--------------------------"
