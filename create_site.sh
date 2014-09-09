@@ -1,4 +1,6 @@
 #!/bin/bash
+sudo clear
+
 
 CURRENT_DIR=`dirname $0`
 
@@ -9,7 +11,7 @@ function ask_clone_question()
     echo "Would you like to clone $1 project from official Github repository to your root folder? y/n"
     read ANSWER
 
-    if ["$ANSWER" = "Y" || "$ANSWER" = "y"]; then
+    if ( [[ "$ANSWER" = 'Y' ]] || [[ "$ANSWER" = 'y' ]] ); then
 
         echo "Please be patient, this may take some time... Project files cloning from official $1 Github repo..."
 
@@ -21,7 +23,7 @@ function ask_clone_question()
         echo "Do you want to clone the project sources from a personal/private SVN or Git repo? g/s/n ?"
         read SCM_ANSWER
 
-        if ["$SCM_ANSWER" = "g" || "$SCM_ANSWER" = "G" || "$SCM_ANSWER" = "s" || "$SCM_ANSWER" = "S"]; then
+        if ( [[ "$SCM_ANSWER" = 'g' ]] || [[ "$SCM_ANSWER" = 'G' ]] || [[ "$SCM_ANSWER" = 's' ]] || [[ "$SCM_ANSWER" = 'S' ]] ); then
 
             echo "Please give url for the repo"
             read REPO_URL
@@ -29,12 +31,11 @@ function ask_clone_question()
             echo "Please be patient, this may take some time... Project files cloning from $REPO_URL ..."
 
             #call the install_sources() function
-            if ["$SCM_ANSWER" = "g" || "$SCM_ANSWER" = "G" ]; then
+            if ( [[ "$SCM_ANSWER" = 'g' ]] || [[ "$SCM_ANSWER" = 'G' ]]); then
 
                 install_sources git $REPO_URL $4
 
-            elif ["$SCM_ANSWER" = "s" || "$SCM_ANSWER" = "S"];then
-
+            elif ( [[ "$SCM_ANSWER" = 's' ]] || [[ "$SCM_ANSWER" = 'S' ]]); then
                 install_sources svn $REPO_URL $4
 
             else
@@ -43,7 +44,6 @@ function ask_clone_question()
         fi
 
     fi
-
 }
 
 # install_sources git http://git-address/repo /var/www/username/public_html/
@@ -53,7 +53,7 @@ function install_sources ()
 
 {
 
-    if [[ $1 == "git" ]]; then
+    if [[ "$1" == 'git' ]]; then
 
         sudo git clone $2 $3/git/
 
@@ -63,7 +63,7 @@ function install_sources ()
 
         echo "done"
 
-    elif [[ $1 == "svn" ]]; then
+    elif [[ "$1" = 'svn' ]]; then
 
         sudo svn co $2 $3/svn/
 
@@ -82,11 +82,10 @@ function install_sources ()
 
     echo "Cloning project files is finished..."
 
-
 }
 
 echo "Am I root?  "
-if [ "$(whoami &2>/dev/null)" != "root" ] && [ "$(id -un &2>/dev/null)" != "root" ] ; then
+if ( [[ "$(whoami &2>/dev/null)" != 'root' ]] && [[ "$(id -un &2>/dev/null)" != 'root' ]]); then
     echo "  NO!
 
     Error: You must be root to run this script."
@@ -162,48 +161,49 @@ select PROJECT_TYPE in $OPTIONS; do
 
     echo "$PROJECT_TYPE project selected..."
 
-    if ["$PROJECT_TYPE" = "1"]; then
+    if [[ "$PROJECT_TYPE" = 'Magento' ]]; then
 
 
-        sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_magento.template $CONFIG
+    sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_magento.template $CONFIG
 
         # ask_clone_question Magento git http://git-address/repo /var/www/username/public_html/
 
-        ask_clone_question Magento git https://github.com/magento/magento2.git $WEB_DIR/$USERNAME/public_html/
+        ask_clone_question Magento git https://github.com/magento/magento2.git $WEB_DIR/$USERNAME/public_html
 
-
-    elif ["$PROJECT_TYPE" = "2"]; then
+        break;
+    elif [[ "$PROJECT_TYPE" = 'Prestashop' ]]; then
 
 
         sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_presta.template $CONFIG
 
 
-        ask_clone_question Prestashop git https://github.com/PrestaShop/PrestaShop.git $WEB_DIR/$USERNAME/public_html/
+        ask_clone_question Prestashop git https://github.com/PrestaShop/PrestaShop.git $WEB_DIR/$USERNAME/public_html
 
-
-    elif ["$PROJECT_TYPE" = "3"]; then
+        break;
+    elif [[ "$PROJECT_TYPE" = 'WordPress' ]]; then
 
         sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_wordpress.template $CONFIG
 
-        ask_clone_question Wordpress git https://github.com/WordPress/WordPress.git $WEB_DIR/$USERNAME/public_html/
+        ask_clone_question Wordpress git https://github.com/WordPress/WordPress.git $WEB_DIR/$USERNAME/public_html
 
-
-    elif ["$PROJECT_TYPE" = "4"]; then
+        break;
+    elif [[ "$PROJECT_TYPE" = 'Laravel' ]]; then
 
         sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_laravel.template $CONFIG
 
-        ask_clone_question Laravel https://github.com/laravel/laravel.git $WEB_DIR/$USERNAME/public_html/
-
-    elif ["$PROJECT_TYPE" = "5"]; then
+        ask_clone_question Laravel git https://github.com/laravel/laravel.git $WEB_DIR/$USERNAME/public_html
+        touch_user
+        break;
+    elif [[ "$PROJECT_TYPE" = 'Other' ]]; then
 
         echo "Simple PHP/HTML project selected..."
 
-        install_sources other other $WEB_DIR/$USERNAME/public_html/
+        install_sources other other $WEB_DIR/$USERNAME/public_html
 
         sudo cp -f $CURRENT_DIR/virtual-host-templates/virtual_host.template $CONFIG
         sudo cp -f $CURRENT_DIR/index.html.template $WEB_DIR/$USERNAME/public_html/index.html
         sudo $SED -i "s/SITE/$DOMAIN/g" $WEB_DIR/$USERNAME/public_html/index.html
-
+        break;
     else
         echo "WTF?"
         exit 1
@@ -247,3 +247,4 @@ echo "URL: $DOMAIN"
 echo "User: $USERNAME"
 echo "--------------------------"
 exit 0;
+
