@@ -1,21 +1,20 @@
 mynxer
 ======
 
-Bash tool for creating easily virtual hosts for LEMP stack
+Bash tool to easily create virtual hosts for LEMP stack
 
 
 #####Usage :
 
         $ sudo ./create_host hostname #localhost doesn't matters
 
-
         $ sudo ./create_host.sh drlinux.org
         
 
 Then follow the white rabbit ;)
 
-Currently supporting Magento, Prestashop, Laravel , Wordpress projects.
+Currently supporting Magento, PrestaShop, Laravel, and Wordpress projects.
 
-The script also able to clone SVN and Git based projects.
+The script is also able to clone SVN and Git based projects.
 
 Any pull request more than welcome!

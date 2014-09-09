@@ -10,9 +10,8 @@ server {
 
     index index.php index.html index.htm;
 
-# serve static files directly
-
-location = /favicon.ico {
+	# serve static files directly
+	location = /favicon.ico {
         log_not_found off;
         access_log off;
     }
@@ -22,10 +21,12 @@ location = /favicon.ico {
         log_not_found off;
         access_log off;
     }
+	
     location ~* \.(jpg|jpeg|gif|css|png|js|ico|html)$ {
         access_log off;
         expires max;
     }
+	
     rewrite ^/api/?(.*)$ /webservice/dispatcher.php?url=$1 last;
     rewrite ^/([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$1$2$3.jpg last;
     rewrite ^/([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$1$2$3$4.jpg last;
@@ -41,30 +42,27 @@ location = /favicon.ico {
     try_files $uri $uri/ /index.php$is_args$args;
     error_page 404 /index.php?controller=404;
 
-## Disable .htaccess and other hidden files
-
+	## Disable .htaccess and other hidden files
     location ~ /\. { 
         deny all;
         access_log off;
         log_not_found off;
-
     }
 
-
-## Magento uses a common front handler 
-
+	## PrestaShop uses a common front handler 
     location @handler { 
         rewrite / /index.php;
     }
 
-## Forward paths like /js/index.php/x.js to relevant handler
-
+	## Forward paths like /js/index.php/x.js to relevant handler
     location ~ .php/ { 
         rewrite ^(.*.php)/ $1 last;
     }
 
     location ~ [^/]\.php(/|$) {
+	
         fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+
         if (!-f $document_root$fastcgi_script_name) {
             return 404;
         }
@@ -75,16 +73,10 @@ location = /favicon.ico {
         fastcgi_param  MAGE_RUN_CODE default; 
         fastcgi_param  MAGE_RUN_TYPE store;
 
-
-## Tweak fastcgi buffers, change if you need.
-
+		## Tweak fastcgi buffers, change if you need.
         fastcgi_buffer_size 128k;
         fastcgi_buffers 256 4k;
         fastcgi_busy_buffers_size 256k;
         fastcgi_temp_file_write_size 256k;
-
     }
-
-
 }
-

@@ -10,7 +10,7 @@ server {
 
     index index.php index.html index.htm;
 
-# serve static files directly
+	# serve static files directly
     location = /favicon.ico {
         log_not_found off;
         access_log off;
@@ -21,6 +21,7 @@ server {
         log_not_found off;
         access_log off;
     }
+	
     location ~* \.(jpg|jpeg|gif|css|png|js|ico|html)$ {
         access_log off;
         expires max;
@@ -34,18 +35,16 @@ server {
     location ^~ /report/config.xml   { deny all; }
     location ^~ /var/                { deny all; }
 
-## Allow admins only to view export directory
-## Set up the password for any username using this command:
-## htpasswd -c /etc/nginx/htpasswd magentoadmin
-
+	## Allow admins only to view export directory
+	## Set up the password for any username using this command:
+	## htpasswd -c /etc/nginx/htpasswd wordpressadmin
     location /var/export/ { 
         auth_basic           "Restricted";
         auth_basic_user_file htpasswd; ## Defined at /etc/nginx/htpassword
-            autoindex            on;
+		autoindex            on;
     }
 
-## Disable .htaccess and other hidden files
-
+	## Disable .htaccess and other hidden files
     location ~ /\. { 
         deny all;
         access_log off;
@@ -53,15 +52,12 @@ server {
 
     }
 
-
-## Magento uses a common front handler 
-
+	## WordPress uses a common front handler 
     location @handler { 
         rewrite / /index.php;
     }
 
-## Forward paths like /js/index.php/x.js to relevant handler
-
+	## Forward paths like /js/index.php/x.js to relevant handler
     location ~ .php/ { 
         rewrite ^(.*.php)/ $1 last;
     }
@@ -71,7 +67,7 @@ server {
     }
 
     location ~ \.php$ {
-
+	
         set $nocache "";
         if ($http_cookie ~ (comment_author_.*|wordpress_logged_in.*|wp-postpass_.*)) {
             set $nocache "Y";
@@ -90,16 +86,10 @@ server {
         fastcgi_cache_bypass $nocache;
         fastcgi_no_cache $nocache;
 
-
-## Tweak fastcgi buffers, change if you need.
-
+		## Tweak fastcgi buffers, change if you need.
         fastcgi_buffer_size 128k;
         fastcgi_buffers 256 4k;
         fastcgi_busy_buffers_size 256k;
         fastcgi_temp_file_write_size 256k;
-
     }
-
-
 }
-
