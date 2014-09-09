@@ -19,7 +19,7 @@ function ask_clone_question()
         echo "Please be patient, this may take some time... Project files cloning from official $1 Github repo..."
 
         #call the install_sources() function
-        install_sources $2 $3 $4
+        install_sources "$2" "$3" "$4"
 
     else
 
@@ -36,7 +36,7 @@ function ask_clone_question()
             #call the install_sources() function
             if ( [[ "$SCM_ANSWER" = 'g' ]] || [[ "$SCM_ANSWER" = 'G' ]]); then
 
-                install_sources git $REPO_URL $4
+                install_sources git "$REPO_URL" "$4"
 
             elif ( [[ "$SCM_ANSWER" = 's' ]] || [[ "$SCM_ANSWER" = 'S' ]]); then
                 install_sources svn "$REPO_URL" "$4"
@@ -93,15 +93,15 @@ echo "Checking distribution..."
 if [ -f /etc/debian_version ];
 then echo "Supported Distribution found"
     echo "System is running Debian Linux"
-else echo -e "  failed...........\nThis script works best on Debian and Ubuntu Linux!\n"
+else echo -e "failed...........\nThis script works best on Debian and Ubuntu Linux!\n"
     exit 1
 fi
 
 # Check existence of which-binary package
 echo "Checking for which... "
 if ( test -f /usr/bin/which ) || ( test -f /bin/which ) || ( test -f /sbin/which ) || ( test -f /usr/sbin/which );
-then echo "  OK";
-else echo "  failed...........\nPlease install which-binary!"
+then echo "OK";
+else echo "failed...........\nPlease install which-binary!"
     exit 1
 fi
 
@@ -219,9 +219,9 @@ fi
 
 
 
- chown -R "$USERNAME":"$USERNAME" "$WEB_DIR/$USERNAME"/public_html
- chmod 770 -R "$WEB_DIR/$USERNAME"/
- chown -R ftp. "$WEB_DIR/$USERNAME"/
+ chown -R $USERNAME:$USERNAME "$WEB_DIR/$USERNAME/public_html"
+ chmod 770 -R "$WEB_DIR/$USERNAME/"
+ chown -R ftp. "$WEB_DIR/$USERNAME/"
  usermod -G ftp "$USERNAME"
 echo -e "\nSite Created for $DOMAIN"
 echo "--------------------------"
