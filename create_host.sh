@@ -101,7 +101,7 @@ fi
 echo "Checking for which... "
 if ( test -f /usr/bin/which ) || ( test -f /bin/which ) || ( test -f /sbin/which ) || ( test -f /usr/sbin/which );
 then echo "OK";
-else echo "failed...........\nPlease install which-binary!"
+else printf "failed...........\nPlease install which-binary!"
     exit 1
 fi
 
@@ -111,7 +111,7 @@ WEB_DIR='/var/www'
 SED="which sed"
 NGINX=" which nginx"
 
-if [ -z $1 ]; then
+if [ -z "$1" ]; then
     echo "No domain name given"
     exit 1
 fi
