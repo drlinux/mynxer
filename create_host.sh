@@ -225,8 +225,8 @@ fi
  usermod -G ftp "$USERNAME"
 echo -e "\nSite Created for $DOMAIN"
 echo "--------------------------"
-echo "Host:" "$HOSTNAME"
-echo "URL:" "$DOMAIN"
-echo "User:" "$USERNAME"
+echo "Host: $HOSTNAME"
+echo "URL: $DOMAIN"
+echo "User: $USERNAME"
 echo "--------------------------"
 exit 0;
