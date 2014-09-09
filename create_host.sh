@@ -214,15 +214,15 @@ else
     exit 1;
 fi
 
- /etc/init.d/nginx reload
+/etc/init.d/nginx reload
 
 
 
 
- chown -R "$USERNAME:$USERNAME" "$WEB_DIR/$USERNAME/public_html"
- chmod 770 -R "$WEB_DIR/$USERNAME/"
- chown -R ftp. "$WEB_DIR/$USERNAME/"
- usermod -G ftp "$USERNAME"
+chown -R "$USERNAME:$USERNAME" "$WEB_DIR/$USERNAME/public_html"
+chmod 770 -R "$WEB_DIR/$USERNAME/"
+chown -R ftp. "$WEB_DIR/$USERNAME/"
+usermod -G ftp "$USERNAME"
 echo -e "\nSite Created for $DOMAIN"
 echo "--------------------------"
 echo "Host: $HOSTNAME"
