@@ -14,4 +14,8 @@ Bash tool for creating easily virtual hosts for LEMP stack
 
 Then follow the white rabbit ;)
 
+Currently supporting Magento, Prestashop, Laravel , Wordpress projects.
 
+The script also able to clone SVN and Git based projects.
+
+Any pull request more than welcome!
