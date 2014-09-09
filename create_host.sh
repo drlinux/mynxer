@@ -14,7 +14,7 @@ clear
 
 CURRENT_DIR=`dirname $0`
 
-# ask_question Magento git http://git-address/repo /var/www/username/public_html/
+# ask_clone_question Magento git http://git-address/repo /var/www/username/public_html/
 function ask_clone_question()
 {
 
