@@ -184,7 +184,7 @@ select PROJECT_TYPE in $OPTIONS; do
          cp -f $CURRENT_DIR/virtual-host-templates/virtual_host_laravel.template $CONFIG
 
         ask_clone_question Laravel git https://github.com/laravel/laravel.git $WEB_DIR/$USERNAME/public_html
-        touch_user
+        
         break;
     elif [[ "$PROJECT_TYPE" = 'Other' ]]; then
 
