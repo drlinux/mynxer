@@ -1,31 +1,20 @@
 server {
-
     listen 80;
 
-    server_name www.DOMAIN DOMAIN;
+    server_name DOMAIN *.DOMAIN;
 
     root ROOT;
 
     access_log /var/log/nginx/DOMAIN.access.log;
 
-    index index.php index.html index.htm;
 
-    # serve static files directly
-    location = /favicon.ico {
-        log_not_found off;
-        access_log off;
+    location / {
+        index index.html index.php; ## Allow a static html file to be shown first
+            try_files $uri $uri/ @handler; ## If missing pass the URI to Magento's front handler
+            expires 30d; ## Assume all files are cachable
     }
 
-    location = /robots.txt {
-        allow all;
-        log_not_found off;
-        access_log off;
-    }
-    location ~* \.(jpg|jpeg|gif|css|png|js|ico|html)$ {
-        access_log off;
-        expires max;
-    }
-
+## These locations would be hidden by .htaccess normally
     location ^~ /app/                { deny all; }
     location ^~ /includes/           { deny all; }
     location ^~ /lib/                { deny all; }
@@ -34,50 +23,38 @@ server {
     location ^~ /report/config.xml   { deny all; }
     location ^~ /var/                { deny all; }
 
-    ## Allow admins only to view export directory
-    ## Set up the password for any username using this command:
-    ## htpasswd -c /etc/nginx/htpasswd magentoadmin
-    location /var/export/ { 
-        auth_basic           "Restricted";
-        auth_basic_user_file htpasswd; ## Defined at /etc/nginx/htpassword
-		autoindex            on;
+    location /var/export/ { ## Allow admins only to view export folder
+        auth_basic           "Restricted"; ## Message shown in login window
+            auth_basic_user_file htpasswd; ## See /etc/nginx/htpassword
+            autoindex            on;
     }
 
-    ## Disable .htaccess and other hidden files
-    location ~ /\. { 
-        deny all;
-        access_log off;
-        log_not_found off;
+    location  /. { ## Disable .htaccess and other hidden files
+        return 404;
     }
 
-    ## Magento uses a common front handler 
-    location @handler { 
+    location @handler { ## Magento uses a common front handler
         rewrite / /index.php;
     }
 
-    ## Forward paths like /js/index.php/x.js to relevant handler
-    location ~ .php/ { 
+    location ~ .php/ { ## Forward paths like /js/index.php/x.js to relevant handler
         rewrite ^(.*.php)/ $1 last;
     }
 
-    location ~ [^/]\.php(/|$) {
-	
-        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-		
-        if (!-f $document_root$fastcgi_script_name) {
-            return 404;
-        }
+    location ~ .php$ { ## Execute PHP scripts
+        if (!-e $request_filename) { rewrite / /index.php last; } ## Catch 404s that try_files miss
 
+        expires        off; ## Do not cache dynamic content
         fastcgi_pass unix:/var/run/php5-fpm.sock;
-        fastcgi_index index.php;
-        include fastcgi_params;
-        fastcgi_param  MAGE_RUN_CODE default; 
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        fastcgi_param  MAGE_RUN_CODE default; ## Store code is defined in administration > Configuration > Manage Stores
         fastcgi_param  MAGE_RUN_TYPE store;
-
-        ## Tweak fastcgi buffers, change if you need.
         fastcgi_buffer_size 128k;
         fastcgi_buffers 256 4k;
         fastcgi_busy_buffers_size 256k;
         fastcgi_temp_file_write_size 256k;
+
+        include        fastcgi_params; ## See /etc/nginx/fastcgi_params
     }
 }
+
