@@ -223,11 +223,12 @@ usermod -a -G www-data "$USERNAME"
 chmod g+rxs "$WEB_DIR"/"$USERNAME"
 chmod 600 "$CONFIG"
 
-
-/etc/init.d/nginx reload
-
 chown -R "$USERNAME":www-data "$WEB_DIR"/"$USERNAME"/public_html
 chmod 0775 -R "$WEB_DIR"/"$USERNAME"/
+
+/etc/init.d/nginx reload
+/etc/init.d/php5-fpm reload
+
 echo -e "\nSite creation is done"
 echo "--------------------------"
 echo "Host : $HOSTNAME"
