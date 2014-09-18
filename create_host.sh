@@ -56,26 +56,26 @@ function install_sources ()
 
     if [[ "$1" == 'git' ]]; then
 
-		git clone "$2" "$3/git/"
+        git clone "$2" "$3"/git
 
-		cp -rf "$3/git/*" "$3/"
+        cp -rf "$3"/git/* "$3"/
 
-		rm -rf "$3/git/"
+        rm -rf "$3"/git/
 
         echo "Done"
 
     elif [[ "$1" = 'svn' ]]; then
 
-		svn co "$2" "$3/svn/"
+        svn co "$2" "$3"/svn/
 
-		cp -rf "$3/svn/*" "$3/"
+        cp -rf "$3"/svn/* "$3"/
 
-		rm -rf "$3/git/"
+        rm -rf "$3"/git/
 
         echo "Done"
     else
 
-		cp -f "$CURRENT_DIR/index-page-templates/index.html.template" "$3/index.php"
+        cp -f /index-page-templates/index.html.template "$3"/index.php
 
     fi
 
@@ -99,9 +99,9 @@ else printf "Failed...........\nPlease install which-binary!"
     exit 1
 fi
 
-NGINX_ALL_VHOSTS='/etc/nginx/sites-available'
-NGINX_ENABLED_VHOSTS='/etc/nginx/sites-enabled'
-WEB_DIR='/var/www'
+NGINX_ALL_VHOSTS="/etc/nginx/sites-available"
+NGINX_ENABLED_VHOSTS="/etc/nginx/sites-enabled"
+WEB_DIR="/var/www"
 SED="which sed"
 NGINX="which nginx"
 
@@ -114,7 +114,7 @@ DOMAIN=$1
 # check the domain is valid!
 PATTERN="^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$";
 if [[ "$DOMAIN" =~ $PATTERN ]]; then
-    DOMAIN="echo $DOMAIN | tr '[A-Z]' '[a-z]'"
+    #DOMAIN="echo $DOMAIN | tr '[A-Z]' '[a-z]'"
     echo "Creating hosting for: $DOMAIN"
 else
     echo "Error: Invalid domain name"
@@ -124,12 +124,12 @@ fi
 # Create a new user!
 echo "Please specify the username for this site?"
 read USERNAME
- adduser --home "$WEB_DIR/$USERNAME" "$USERNAME"
+adduser --home "$WEB_DIR/$USERNAME" "$USERNAME"
 
 mkdir -p /var/www/"$USERNAME"/public_html
 
 # Now we need to copy the virtual host template
-CONFIG="$NGINX_ALL_VHOSTS/$DOMAIN".conf
+CONFIG="$NGINX_ALL_VHOSTS"/"$DOMAIN".conf
 
 clear
 
@@ -141,43 +141,74 @@ select PROJECT_TYPE in $OPTIONS; do
 
     if [[ "$PROJECT_TYPE" = 'Magento' ]]; then
 
-		cp -f "$CURRENT_DIR/virtual-host-templates/virtual_host_magento.template" "$CONFIG"
-		
-        # ask_clone_question Magento git http://git-address/repo /var/www/username/public_html/
-        ask_clone_question Magento git https://GitHub.com/magento/magento2.git "$WEB_DIR/$USERNAME/public_html"
+        # Delete possible old/previous config file
+        rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+        cp -f virtual-host-templates/virtual_host_magento.template "$CONFIG"
+
+        # Create symlink
+        ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+        ask_clone_question Magento git https://GitHub.com/magento/magento2.git "$WEB_DIR"/"$USERNAME"/public_html
         break;
-		
+
     elif [[ "$PROJECT_TYPE" = 'Prestashop' ]]; then
 
-		cp -f "$CURRENT_DIR/virtual-host-templates/virtual_host_presta.template" "$CONFIG"
+        # Delete possible old/previous config file
+        rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-        ask_clone_question Prestashop git https://GitHub.com/PrestaShop/PrestaShop.git "$WEB_DIR/$USERNAME/public_html"
+        cp -f "virtual-host-templates/virtual_host_presta.template" "$CONFIG"
+
+        # Create symlink
+        ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+        ask_clone_question Prestashop git https://GitHub.com/PrestaShop/PrestaShop.git "$WEB_DIR/$USERNAME"/public_html
         break;
-		
+
     elif [[ "$PROJECT_TYPE" = 'WordPress' ]]; then
 
-		cp -f "$CURRENT_DIR/virtual-host-templates/virtual_host_wordpress.template" "$CONFIG"
+        # Delete possible old/previous config file
+        rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+        cp -f "virtual-host-templates/virtual_host_wordpress.template" "$CONFIG"
+
+        # Create symlink
+        ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
         ask_clone_question Wordpress git https://GitHub.com/WordPress/WordPress.git "$WEB_DIR/$USERNAME"/public_html
         break;
-		
+
     elif [[ "$PROJECT_TYPE" = 'Laravel' ]]; then
 
-		cp -f "$CURRENT_DIR/virtual-host-templates/virtual_host_laravel.template" "$CONFIG"
+        # Delete possible old/previous config file
+        rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+        cp -f "virtual-host-templates/virtual_host_laravel.template" "$CONFIG"
+
+        # Create symlink
+        ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
 
         ask_clone_question Laravel git https://GitHub.com/laravel/laravel.git "$WEB_DIR/$USERNAME/public_html"
         break;
-		
+
     elif [[ "$PROJECT_TYPE" = 'Other' ]]; then
 
         echo "Simple PHP/HTML project selected..."
 
         install_sources other other "$WEB_DIR/$USERNAME/public_html"
 
-		cp -f "$CURRENT_DIR/virtual-host-templates/virtual_host.template" "$CONFIG"
-		$SED -i "s/SITE/$DOMAIN/g" "$WEB_DIR/$USERNAME/public_html/index.php"
+        # Delete possible old/previous config file
+        rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+        cp -f "virtual-host-templates/virtual_host.template" "$CONFIG"
+        # Create symlink
+        ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+
+        $SED -i "s/SITE/$DOMAIN/g" "$WEB_DIR/$USERNAME/public_html/index.php"
         break;
-		
+
     else
         echo "WTF?"
         exit 1
@@ -185,33 +216,18 @@ select PROJECT_TYPE in $OPTIONS; do
 done
 
 
-$SED -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
-$SED -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
+sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
+sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
 
-adduser "$USERNAME" www-data
-chmod g+rxs "$WEB_DIR/$USERNAME"
+usermod -a -G www-data "$USERNAME"
+chmod g+rxs "$WEB_DIR"/"$USERNAME"
 chmod 600 "$CONFIG"
 
-$NGINX -t
-if [ $? -eq 0 ];then
-
-    # Delete possible old/previous config file
-	rm -f "$NGINX_ENABLED_VHOSTS/$DOMAIN".conf
-
-    # Create symlink
-	ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS/$DOMAIN".conf
-	 
-else
-    echo "Could not create new vhost file. There appears to be a problem with the newly created nginx config file:" "$CONFIG";
-    exit 1;
-fi
 
 /etc/init.d/nginx reload
 
-chown -R "$USERNAME:$USERNAME" "$WEB_DIR/$USERNAME/public_html"
-chmod 770 -R "$WEB_DIR/$USERNAME/"
-chown -R ftp. "$WEB_DIR/$USERNAME/"
-usermod -G ftp "$USERNAME"
+chown -R "$USERNAME":www-data "$WEB_DIR"/"$USERNAME"/public_html
+chmod 0775 -R "$WEB_DIR"/"$USERNAME"/
 echo -e "\nSite creation is done"
 echo "--------------------------"
 echo "Host : $HOSTNAME"
