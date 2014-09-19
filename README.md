@@ -2,7 +2,7 @@ mynxer
 ======
 
 
-###This Script Not Mature Yet!!!!
+###mynxer script is not ature yet!!!!
 
 Bash tool to easily create virtual hosts for LEMP stack
 
