@@ -23,3 +23,10 @@ Currently supporting Magento, PrestaShop, Laravel, and Wordpress projects.
 The script is also able to clone SVN and Git based projects.
 
 Any pull request more than welcome!
+
+
+##TODO
+
+ADD MySQL support
+
+ADD PostgreSQL support
