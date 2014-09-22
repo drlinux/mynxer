@@ -25,61 +25,61 @@ Wordpress_REPO="https://GitHub.com/WordPress/WordPress.git"
 
 sys_check(){
 
-	#check root
+    #check root
 
-	if ( [[ "$(whoami &2>/dev/null)" != 'root' ]] && [[ "$(id -un &2>/dev/null)" != 'root' ]]); then
+    if ( [[ "$(whoami &2>/dev/null)" != 'root' ]] && [[ "$(id -un &2>/dev/null)" != 'root' ]]); then
 
-		root_warning
-		tput clear
-		exit
-	fi
+        root_warning
+        tput clear
+        exit
+    fi
 
-	#check disto
+    #check disto
 
-	if [ -f /etc/debian_version ]; then
+    if [ -f /etc/debian_version ]; then
 
-		#system runining debian based distro and we user has root permissions
-		#Let's go to the next dialog
+        #system runining debian based distro and we user has root permissions
+        #Let's go to the next dialog
 
-		tput clear
-		nginx_php_check 
-	else
+        tput clear
+        nginx_php_check
+    else
 
-		debian_warning
-		tput clear
-		exit
-	fi
+        debian_warning
+        tput clear
+        exit
+    fi
 
 
 }
 
 nginx_php_check(){
 
-	if [ -f "$NGINX_CONF" ]; then
+    if [ -f "$NGINX_CONF" ]; then
 
-		cat /dev/null &2>/dev/null
-	else 
-		apt-get update
-		apt-get install nginx-full -y &2>/dev/null
+        cat /dev/null &2>/dev/null
+    else
+        apt-get update
+        apt-get install nginx-full -y &2>/dev/null
 
-		sed -i "s/$PHP_FPM_POOL_PORT/$PHP_FPM_UNIX_SOCKET/g" "$PHP_FPM_POOL_CONF" &2>/dev/null
+        sed -i "s/$PHP_FPM_POOL_PORT/$PHP_FPM_UNIX_SOCKET/g" "$PHP_FPM_POOL_CONF" &2>/dev/null
 
-		service php5-fpm restart &2>/dev/null
+        service php5-fpm restart &2>/dev/null
 
-		service nginx restart &2>/dev/null
-	fi
+        service nginx restart &2>/dev/null
+    fi
 
-	if [ -f "$PHP_FPM_POOL_CONF" ]; then
+    if [ -f "$PHP_FPM_POOL_CONF" ]; then
 
-		cat /dev/null &2>/dev/null
+        cat /dev/null &2>/dev/null
 
-	else
+    else
 
-		apt-get install php5-fpm -y &2>/dev/null
+        apt-get install php5-fpm -y &2>/dev/null
 
-	fi
-	domain_check
-	
+    fi
+    domain_check
+
 
 
 }
@@ -87,7 +87,7 @@ nginx_php_check(){
 
 root_warning(){
 
-	dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1Error: You must be root or member of sudoers group to run this script!\Zn' 5 75
+    dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1Error: You must be root or member of sudoers group to run this script!\Zn' 5 75
 
 }
 
@@ -95,155 +95,289 @@ root_warning(){
 
 debian_warning(){
 
-	dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1This script works best on Debian and Ubuntu Linux\Zn!' 5 55
+    dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1This script works best on Debian and Ubuntu Linux\Zn!' 5 55
 }
 
 
 domain_check(){
 
-	dialog --screen-center --backtitle "$MYNXER" --title "Domain Name for virtual Host" --inputbox "Enter your domain name:" 8 40 2> $TEMP
+    dialog --screen-center --backtitle "$MYNXER" --title "Domain Name for virtual Host" --inputbox "Enter your domain name:" 8 40 2> $TEMP
 
-	DOMAIN=`cat $TEMP`
-	rm -f $TEMP
+    DOMAIN=`cat $TEMP`
+    rm -f $TEMP
 
-	if [[ "$DOMAIN" =~ $PATTERN ]]; then
+    if [[ "$DOMAIN" =~ $PATTERN ]]; then
 
-		dialog --screen-center --backtitle "$MYNXER" --colors --infobox "Please wait... \nCreating virtual host for \n\Z1$DOMAIN" 10 30 ; sleep 3
+        dialog --screen-center --backtitle "$MYNXER" --colors --infobox "Please wait... \nCreating virtual host for \n\Z1$DOMAIN" 10 30 ; sleep 3
 
 
-		create_user
-		
+        create_user
 
-	else
 
-		dialog  --screen-center --backtitle "$MYNXER" --colors --infobox "\Z1$DOMAIN\Zn\n is an invalid domain name" 10 30 ; sleep 3
-		domain_check
-	fi
+    else
+
+        dialog  --screen-center --backtitle "$MYNXER" --colors --infobox "\Z1$DOMAIN\Zn\n is an invalid domain name" 10 30 ; sleep 3
+        domain_check
+    fi
 
 }
 
 create_user(){
 
 
-	dialog --screen-center --backtitle "$MYNXER" --title "Username for virtual Host" --inputbox "Please specify the username for this virtual host" 8 40 2> $TEMP
+    dialog --screen-center --backtitle "$MYNXER" --title "Username for virtual Host" --inputbox "Please specify the username for this virtual host" 8 40 2> $TEMP
 
-	USERNAME=`cat $TEMP`
-	rm -f $TEMP
-
-
-
-	if [[ "$USERNAME" =~ $PATTERN ]]; then
-
-		dialog --screen-center --backtitle "$MYNXER" --colors --infobox "Please wait... \nCreating user : \n\Z1$USERNAME" 10 30 ; sleep 3
-
-		adduser --home "$WEB_DIR/$USERNAME" "$USERNAME"
-
-		mkdir -p "$WEB_DIR"/"$USERNAME"/public_html &2>/dev/null
-
-		usermod -a -G www-data "$USERNAME" &2>/dev/null
-
-		# let set an infinite loop
-		#
-
-		while true
-		do
-
-			### display main menu ###
-			dialog --clear --backtitle "$MYNXER" \
-				--title "Project Type" \
-				--menu "Please Choose the Project Type" 15 50 4 \
-				Magento "Displays date and time" \
-				Prestashop "Displays a calendar" \
-				Wordpress "Start a text editor" \
-				Laravel "Laravel Project" \
-				Other "Generic PHP / HTML Project" \
-				Exit "Exit to the shell" 2>"${MENU_INPUT}"
-
-			userselection=$(<"${MENU_INPUT}")
+    USERNAME=`cat $TEMP`
+    rm -f $TEMP
 
 
-			if [ "$userselection" != 'Exit' ]; then
 
-				CONFIG="$NGINX_ALL_VHOSTS"/"$DOMAIN".conf
+    if [[ "$USERNAME" =~ $PATTERN ]]; then
 
-				# Delete possible old/previous config file
-				
-				rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+        dialog --screen-center --backtitle "$MYNXER" --colors --infobox "Please wait... \nCreating user : \n\Z1$USERNAME" 10 30 ; sleep 3
 
-				cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
-				# Now we need to copy the virtual host template
+        adduser --home "$WEB_DIR/$USERNAME" "$USERNAME"
 
-				sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
-				
-				sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
+        mkdir -p "$WEB_DIR"/"$USERNAME"/public_html &2>/dev/null
+
+        usermod -a -G www-data "$USERNAME" &2>/dev/null
+
+        # let set an infinite loop
+        #
+
+        while true
+        do
+
+            ### display main menu ###
+            dialog --clear --backtitle "$MYNXER" \
+                --title "Project Type" \
+                --menu "Please Choose the Project Type" 15 50 4 \
+                Magento "Magento Project" \
+                Prestashop "Prestashop Project" \
+                Wordpress "Wordpress Project" \
+                Laravel "Laravel Project" \
+                Other "Generic PHP / HTML Project" \
+                Exit "Exit to the shell" 2>"${MENU_INPUT}"
+
+            userselection=$(<"${MENU_INPUT}")
 
 
-				# Create symlink
-				
-				ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+            if [ "$userselection" = 'Exit' ]; then
 
-				ask_clone_question "$userselection" "$userselection"_REPO "$WEB_DIR"/"$USERNAME"/public_html
+                echo "Bye"; break;
 
-			else
+            elif [ "$userselection" = 'Magento' ]; then
 
-				echo "Bye"; break;
+                CONFIG="$NGINX_ALL_VHOSTS"/"$DOMAIN".conf
 
-			fi
+                # Delete possible old/previous config file
 
-		done
+                rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-		# if temp files exists, destroy`em all!
+                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                # Now we need to copy the virtual host template
 
-		[ -f $MENU_OUTPUT ] && rm $MENU_OUTPUT
-		[ -f $MENU_INPUT ] && rm $MENU_INPUT
+                sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
 
-	else
+                sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
 
-		dialog  --screen-center --backtitle "$MYNXER" --colors --infobox "\Z1$USERNAME\Zn\n is an invalid username" 10 30 ; sleep 3
-		create_user
-	fi
+
+                # Create symlink
+
+                ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+
+                THE_REPO="https://GitHub.com/magento/magento2.git"
+
+                ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
+
+
+            elif [ "$userselection" = 'Prestashop' ]; then
+
+
+                CONFIG="$NGINX_ALL_VHOSTS"/"$DOMAIN".conf
+
+                # Delete possible old/previous config file
+
+                rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                # Now we need to copy the virtual host template
+
+                sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
+
+                sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
+
+
+                # Create symlink
+
+                ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+
+                THE_REPO="https://GitHub.com/PrestaShop/PrestaShop.git"
+
+                ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
+
+
+            elif [ "$userselection" = 'Laravel' ]; then
+
+                CONFIG="$NGINX_ALL_VHOSTS"/"$DOMAIN".conf
+
+                # Delete possible old/previous config file
+
+                rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                # Now we need to copy the virtual host template
+
+                sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
+
+                sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
+
+
+                # Create symlink
+
+                ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+                THE_REPO="https://GitHub.com/laravel/laravel.git"
+
+                ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
+
+
+            elif [ "$userselection" = 'Wordpress' ]; then
+
+                CONFIG="$NGINX_ALL_VHOSTS"/"$DOMAIN".conf
+
+                # Delete possible old/previous config file
+
+                rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                # Now we need to copy the virtual host template
+
+                sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
+
+                sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
+
+
+                # Create symlink
+
+                ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+                THE_REPO="https://GitHub.com/WordPress/WordPress.git"
+
+                ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
+
+
+            fi
+
+
+            # if temp files exists, destroy`em all!
+
+            [ -f $MENU_OUTPUT ] && rm $MENU_OUTPUT
+            [ -f $MENU_INPUT ] && rm $MENU_INPUT
+
+
+        done
+    else
+
+        dialog  --screen-center --backtitle "$MYNXER" --colors --infobox "\Z1$USERNAME\Zn\n is an invalid username" 10 30 ; sleep 3
+        create_user
+    fi
+
+    exit
 }
 
 # ask_clone_question Magento git http://git-address/repo /var/www/username/public_html/
 
 ask_clone_question(){
 
-	echo "Would you like to clone $1 project from official GitHub repository to your root folder? y/n"
-	read ANSWER
+    # let set an infinite loop
+    #
 
-	if ( [[ "$ANSWER" = 'Y' ]] || [[ "$ANSWER" = 'y' ]] ); then
+    while true
+    do
 
-		echo "Please be patient, this may take some time... Project files are cloning from official $1 GitHub repo..."
+        if [ "$1" != 'Other' ]; then
 
-		#call the install_sources() function
-		install_sources "$2" "$3" "$4"
+            ### display main menu ###
 
-	else
+            dialog --clear --backtitle "$MYNXER" \
+                --title "Project Type" \
+                --menu "Please Choose the Project Type" 15 50 4 \
+                Github "Clone $1 project from official GitHub repository" \
+                SVN "Clone $1 project from a personal / private SVN repository" \
+                Git "Clone $1 project from a personal / private Git repository" \
+                Exit "Exit to the shell" 2>"${MENU_INPUT}"
+        else
+            ### display main menu ###
 
-		echo "Would you like to clone the project sources from a personal/private SVN or Git repo? g/s/n ?"
-		read SCM_ANSWER
+            dialog --clear --backtitle "$MYNXER" \
+                --title "Project Type" \
+                --menu "Please Choose the Project Type" 15 50 4 \
+                SVN "Clone $1 project from a personal / private SVN repository" \
+                Git "Clone $1 project from a personal / private Git repository" \
+                Exit "Exit to the shell" 2>"${MENU_INPUT}"
 
-		if ( [[ "$SCM_ANSWER" = 'g' ]] || [[ "$SCM_ANSWER" = 'G' ]] || [[ "$SCM_ANSWER" = 's' ]] || [[ "$SCM_ANSWER" = 'S' ]] ); then
+        fi
 
-			echo "Please give url for the repo"
-			read REPO_URL
+        userselection=$(<"${MENU_INPUT}")
 
-			echo "Please be patient, this may take some time... Project files are cloning from $REPO_URL ..."
 
-			#call the install_sources() function
-			if ( [[ "$SCM_ANSWER" = 'g' ]] || [[ "$SCM_ANSWER" = 'G' ]]); then
+        if [ "$userselection" == 'Github' ]; then
 
-				install_sources git "$REPO_URL" "$4"
+            CONFIG="$NGINX_ALL_VHOSTS"/"$DOMAIN".conf
 
-			elif ( [[ "$SCM_ANSWER" = 's' ]] || [[ "$SCM_ANSWER" = 'S' ]]); then
-				install_sources svn "$REPO_URL" "$4"
+            # Delete possible old/previous config file
 
-			else
-				install_sources other other "$4"
-			fi
-		fi
+            rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-	fi
+            cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+            # Now we need to copy the virtual host template
+
+            sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
+
+            sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
+
+            # Create symlink
+
+            ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
+
+            install_sources "$userselection" "$2" "$WEB_DIR"/"$USERNAME"/public_html
+
+        elif ( [[ "$userselection" = 'SVN' ]] || [[ "$userselection" = 'Git' ]] ); then
+
+            ask_repo_address $userselection "$WEB_DIR"/"$USERNAME"/public_html
+
+        else
+
+            tput clear; echo "Bye"; break;
+
+        fi
+
+    done
+
+    # if temp files exists, destroy`em all!
+
+    [ -f $MENU_OUTPUT ] && rm $MENU_OUTPUT
+    [ -f $MENU_INPUT ] && rm $MENU_INPUT
+
+    exit
+
+}
+ask_repo_address(){
+
+    tput clear
+
+    dialog --screen-center --backtitle "$MYNXER" --title "Personal / Private $1 URL" --inputbox "Enter your $1 repo URL below:" 8 40 2> $TEMP
+
+    REPO_URL=`cat $TEMP`
+
+    rm -f $TEMP
+
+    install_sources $1 $REPO_URL $2
+
+    exit
 }
 
 # install_sources git http://git-address/repo /var/www/username/public_html/
@@ -251,51 +385,54 @@ ask_clone_question(){
 
 install_sources (){
 
-	if [[ "$1" == 'git' ]]; then
+    tput clear
 
-		git clone "$2" "$3"/git
+    if ( [[ "$1" = 'Github' ]] || [[ "$1" = 'Git' ]] ); then
 
-		cp -rf "$3"/git/* "$3"/
+        git clone "$2" "$3"/git/
 
-		rm -rf "$3"/git/
+        cp -rf "$3"/git/* "$3"/
 
-		echo "Done"
+        rm -rf "$3"/git/
 
-	elif [[ "$1" = 'svn' ]]; then
+        echo "Done"
 
-		svn co "$2" "$3"/svn/
+    elif [[ "$1" = 'SVN' ]]; then
 
-		cp -rf "$3"/svn/* "$3"/
+        svn co "$2" "$3"/svn/
 
-		rm -rf "$3"/git/
+        cp -rf "$3"/svn/* "$3"/
 
-		echo "Done"
-	else
+        rm -rf "$3"/svn/
 
-		cp -f index-page-templates/index.html.template "$3"/index.php
+        echo "Done"
+    else
 
-	fi
+        cp -f index-page-templates/index.html.template "$3"/index.php
 
-	echo "Cloning is finished..."
+    fi
 
-	sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
+    echo "Cloning is finished..."
 
-	sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
+    sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
 
-	usermod -a -G www-data "$USERNAME"
+    sed -i "s#ROOT#$WEB_DIR\/$USERNAME\/public_html#g" "$CONFIG"
 
-	chmod g+rxs "$WEB_DIR"/"$USERNAME"
+    usermod -a -G www-data "$USERNAME"
 
-	chmod 600 "$CONFIG"
+    chmod g+rxs "$WEB_DIR"/"$USERNAME"
 
-	chown -R "$USERNAME":www-data "$WEB_DIR"/"$USERNAME"/public_html
+    chmod 600 "$CONFIG"
 
-	chmod 0775 -R "$WEB_DIR"/"$USERNAME"/
+    chown -R "$USERNAME":www-data "$WEB_DIR"/"$USERNAME"/public_html
 
-	/etc/init.d/nginx reload
+    chmod 0775 -R "$WEB_DIR"/"$USERNAME"/
 
-	/etc/init.d/php5-fpm reload
+    /etc/init.d/nginx reload
 
+    /etc/init.d/php5-fpm reload
+
+    exit
 }
 
 
