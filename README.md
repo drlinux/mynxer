@@ -1,9 +1,6 @@
 mynxer
 ======
 
-
-###mynxer is not mature yet!!!!
-
 Bash tool to easily create virtual hosts for LEMP stack
 
 
