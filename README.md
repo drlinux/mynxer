@@ -1,17 +1,7 @@
 mynxer
 ======
 
-
-ooo        ooooo                                                        
-`88.       .888'                                                        
- 888b     d'888  oooo    ooo ooo. .oo.   oooo    ooo  .ooooo.  oooo d8b 
- 8 Y88. .P  888   `88.  .8'  `888P"Y88b   `88b..8P'  d88' `88b `888""8P 
- 8  `888'   888    `88..8'    888   888     Y888'    888ooo888  888     
- 8    Y     888     `888'     888   888   .o8"'88b   888    .o  888     
-o8o        o888o     .8'     o888o o888o o88'   888o `Y8bod8P' d888b    
-                 .o..P'                                                 
-                 `Y8P'                                                  
-                                                                        
+![Mynxer logo](http://i.imgur.com/WRb9yqk.png)                                                                 
 
 
 A bash tool to easily create virtual hosts for LEMP stack.
