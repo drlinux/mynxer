@@ -11,9 +11,7 @@ Mynexer also able to clone your projects from any Git or SVN repository.
 
 #####Usage :
 
-        $ sudo ./create_host hostname #localhost doesn't matters
-
-        $ sudo ./create_host.sh drlinux.org
+        $ sudo ./mynexer.sh
         
 
 Then follow the white rabbit ;)
