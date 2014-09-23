@@ -18,11 +18,12 @@ install_mynxer(){
 
     cp -rf virtual-host-templates/ /usr/share/mynxer/
 
-    cp README.md /usr/share/mynxer/
+    cp -f README.md /usr/share/mynxer/
 
-    cp LICENSE /usr/share/mynxer/
+    cp -f LICENSE /usr/share/mynxer/
 
+    echo "Mynxer installed. please type to use : sudo mynxer"
 }
 
 install_mynxer
-
+domain_check

@@ -2,50 +2,23 @@
 
 # set default values
 tput clear
+
+if  [ -f  /etc/mynxer.conf ]; then
+    source /etc/mynxer.conf
+
+    #initialize the script
+    sys_check
+
+
+else
+    source mynxer.conf
+    #check installation
+    setup_warning
+    exit
+
+fi
+
 #installation required
-
-setup_warning(){
-
-    dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1Error: You must first install the mynxer.\Zn' 5 75
-
-
-}
-
- if ! [ -f  /etc/mynxer.conf ]; then
-
-        source mynxer.conf
-        #check installation
-        setup_warning
-        tput clear
-        exit
-
-
- fi
-
-source /etc/mynxer.conf
-
-domain_check(){
-
-    dialog --screen-center --backtitle "$MYNXER" --title "Domain Name for virtual Host" --inputbox "Enter your domain name:" 8 40 2> $TEMP
-
-    DOMAIN=`cat $TEMP`
-    rm -f $TEMP
-
-    if [[ "$DOMAIN" =~ $PATTERN ]]; then
-
-        dialog --screen-center --backtitle "$MYNXER" --colors --infobox "Please wait... \nCreating virtual host for \n\Z1$DOMAIN" 10 30 ; sleep 3
-
-
-        create_user
-
-
-    else
-
-        dialog  --screen-center --backtitle "$MYNXER" --colors --infobox "\Z1$DOMAIN\Zn\n is an invalid domain name" 10 30 ; sleep 3
-        domain_check
-    fi
-
-}
 
 create_user(){
 
@@ -359,10 +332,6 @@ install_sources (){
 
     exit
 }
-
-
-
-#initialize the script
 sys_check
-
+domain_check
 
