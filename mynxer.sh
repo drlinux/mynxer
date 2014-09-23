@@ -2,102 +2,27 @@
 
 # set default values
 tput clear
+#installation required
 
-MYNXER="mynexer 1.0b"
-NGINX_ALL_VHOSTS="/etc/nginx/sites-available"
-NGINX_ENABLED_VHOSTS="/etc/nginx/sites-enabled"
-WEB_DIR="/var/www"
-SED="which sed"
-NGINX="which nginx"
-PHP_FPM="which php5-fpm"
-PHP_FPM_POOL_CONF="/etc/php5/fpm/pool.d/www.conf"
-PHP_FPM_POOL_PORT="127.0.0.1:9001"
-PHP_FPM_UNIX_SOCKET="/var/run/php5-fpm.sock"
-NGINX_CONF="/etc/nginx/nginx.conf"
-PATTERN="^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$";
-TEMP=/tmp/answer.$$
-MENU_INPUT=/tmp/menu.sh.$$
-MENU_OUTPUT=/tmp/output.sh.$$
-Magento_REPO="https://GitHub.com/magento/magento2.git"
-Prestashop_REPO="https://GitHub.com/PrestaShop/PrestaShop.git"
-Laravel_REPO="https://GitHub.com/laravel/laravel.git"
-Wordpress_REPO="https://GitHub.com/WordPress/WordPress.git"
+setup_warning(){
 
-sys_check(){
+    dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1Error: You must first install the mynxer.\Zn' 5 75
 
-    #check root
 
-    if ( [[ "$(whoami &2>/dev/null)" != 'root' ]] && [[ "$(id -un &2>/dev/null)" != 'root' ]]); then
+}
 
-        root_warning
+ if ! [ -f  /etc/mynxer.conf ]; then
+
+        source mynxer.conf
+        #check installation
+        setup_warning
         tput clear
         exit
-    fi
-
-    #check disto
-
-    if [ -f /etc/debian_version ]; then
-
-        #system runining debian based distro and we user has root permissions
-        #Let's go to the next dialog
-
-        tput clear
-        nginx_php_check
-    else
-
-        debian_warning
-        tput clear
-        exit
-    fi
 
 
-}
+ fi
 
-nginx_php_check(){
-
-    if [ -f "$NGINX_CONF" ]; then
-
-        cat /dev/null &2>/dev/null
-    else
-        apt-get update
-        apt-get install nginx-full -y &2>/dev/null
-
-        sed -i "s/$PHP_FPM_POOL_PORT/$PHP_FPM_UNIX_SOCKET/g" "$PHP_FPM_POOL_CONF" &2>/dev/null
-
-        service php5-fpm restart &2>/dev/null
-
-        service nginx restart &2>/dev/null
-    fi
-
-    if [ -f "$PHP_FPM_POOL_CONF" ]; then
-
-        cat /dev/null &2>/dev/null
-
-    else
-
-        apt-get install php5-fpm -y &2>/dev/null
-
-    fi
-    domain_check
-
-
-
-}
-### Root previgilies required
-
-root_warning(){
-
-    dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1Error: You must be root or member of sudoers group to run this script!\Zn' 5 75
-
-}
-
-### We need debian based distro
-
-debian_warning(){
-
-    dialog --screen-center --backtitle "$MYNXER" --title "Error" --colors --msgbox '\Z1This script works best on Debian and Ubuntu Linux\Zn!' 5 55
-}
-
+source /etc/mynxer.conf
 
 domain_check(){
 
@@ -174,7 +99,7 @@ create_user(){
 
                 rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                cp -f /usr/share/mynxer/virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
                 # Now we need to copy the virtual host template
 
                 sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
@@ -187,7 +112,7 @@ create_user(){
                 ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
 
-                THE_REPO="https://GitHub.com/magento/magento2.git"
+                THE_REPO="https://github.com/magento/magento2.git"
 
                 ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
 
@@ -201,7 +126,7 @@ create_user(){
 
                 rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                cp -f /usr/share/mynxer/virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
                 # Now we need to copy the virtual host template
 
                 sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
@@ -214,7 +139,7 @@ create_user(){
                 ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
 
-                THE_REPO="https://GitHub.com/PrestaShop/PrestaShop.git"
+                THE_REPO="https://github.com/PrestaShop/PrestaShop.git"
 
                 ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
 
@@ -227,7 +152,7 @@ create_user(){
 
                 rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                cp -f /usr/share/mynxer/virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
                 # Now we need to copy the virtual host template
 
                 sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
@@ -239,7 +164,7 @@ create_user(){
 
                 ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-                THE_REPO="https://GitHub.com/laravel/laravel.git"
+                THE_REPO="https://github.com/laravel/laravel.git"
 
                 ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
 
@@ -252,7 +177,7 @@ create_user(){
 
                 rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-                cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+                cp -f /usr/share/mynxer/virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
                 # Now we need to copy the virtual host template
 
                 sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
@@ -264,7 +189,7 @@ create_user(){
 
                 ln -s "$CONFIG" "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-                THE_REPO="https://GitHub.com/WordPress/WordPress.git"
+                THE_REPO="https://github.com/WordPress/WordPress.git"
 
                 ask_clone_question "$userselection" "$THE_REPO" "$WEB_DIR"/"$USERNAME"/public_html
 
@@ -332,7 +257,7 @@ ask_clone_question(){
 
             rm -f "$NGINX_ENABLED_VHOSTS"/"$DOMAIN".conf
 
-            cp -f virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
+            cp -f /usr/share/mynxer/virtual-host-templates/virtual_host_"$userselection".template "$CONFIG"
             # Now we need to copy the virtual host template
 
             sed -i "s/DOMAIN/$DOMAIN/g" "$CONFIG"
@@ -408,7 +333,7 @@ install_sources (){
         echo "Done"
     else
 
-        cp -f index-page-templates/index.html.template "$3"/index.php
+        cp -f /usr/share/mynxer/index-page-templates/index.html.template "$3"/index.php
 
     fi
 
