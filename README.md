@@ -6,12 +6,12 @@ mynxer
 
 A bash tool to easily create virtual hosts for LEMP stack.
 Currently supporting Magento, Prestashop, Laravel and Wordpress projects.
-Mynexer also able to clone your projects from any Git or SVN repository.
+mynxer also able to clone your projects from any Git or SVN repository.
 
 
 #####Usage :
 
-        $ sudo ./mynexer.sh
+        $ sudo ./mynxer.sh
         
 
 Then follow the white rabbit ;)
